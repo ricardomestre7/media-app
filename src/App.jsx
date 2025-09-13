@@ -14,8 +14,8 @@ import PrivateRoute from './components/PrivateRoute'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutos
-      cacheTime: 10 * 60 * 1000, // 10 minutos
+      staleTime: 5 * 60 * 1000,
+      cacheTime: 10 * 60 * 1000,
       refetchOnWindowFocus: false,
     },
   },
@@ -43,7 +43,6 @@ function App() {
                   <Route path="*" element={<Navigate to="/" replace />} />
                 </Routes>
                 
-                {/* Toast Notifications */}
                 <Toaster
                   position="top-right"
                   toastOptions={{
@@ -51,20 +50,6 @@ function App() {
                     style: {
                       background: '#363636',
                       color: '#fff',
-                    },
-                    success: {
-                      duration: 3000,
-                      iconTheme: {
-                        primary: '#10B981',
-                        secondary: '#fff',
-                      },
-                    },
-                    error: {
-                      duration: 5000,
-                      iconTheme: {
-                        primary: '#EF4444',
-                        secondary: '#fff',
-                      },
                     },
                   }}
                 />
