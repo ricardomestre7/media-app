@@ -1,5 +1,9 @@
 /* ===== DESIGN SYSTEM PREMIUM ===== */
 
+/* Importar fontes */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 /* Reset e estilos base */
 * {
   box-sizing: border-box;
@@ -90,10 +94,6 @@
   --z-tooltip: 1070;
   --z-toast: 1080;
 }
-
-/* Importar fontes */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 /* Base */
 body {
