@@ -1,64 +1,38 @@
 import React from 'react'
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Toaster } from 'react-hot-toast'
-import { AuthProvider } from './contexts/AuthContext'
-import { MediaProvider } from './contexts/MediaContext'
-import { NotificationProvider } from './contexts/NotificationContext'
-import LoginPage from './pages/LoginPage'
-import RegisterPage from './pages/RegisterPage'
-import MediaPage from './pages/MediaPage'
-import PrivateRoute from './components/PrivateRoute'
-
-// Configurar React Query
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      cacheTime: 10 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
-})
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <MediaProvider>
-          <NotificationProvider>
-            <Router>
-              <div className="App">
-                <Routes>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route
-                    path="/"
-                    element={
-                      <PrivateRoute>
-                        <MediaPage />
-                      </PrivateRoute>
-                    }
-                  />
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-                
-                <Toaster
-                  position="top-right"
-                  toastOptions={{
-                    duration: 4000,
-                    style: {
-                      background: '#363636',
-                      color: '#fff',
-                    },
-                  }}
-                />
-              </div>
-            </Router>
-          </NotificationProvider>
-        </MediaProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+    <div style={{ 
+      padding: '20px', 
+      textAlign: 'center', 
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#f0f0f0',
+      minHeight: '100vh'
+    }}>
+      <h1 style={{ color: '#333', marginBottom: '20px' }}>
+        Media Center - Teste
+      </h1>
+      <p style={{ color: '#666', fontSize: '18px', marginBottom: '10px' }}>
+        Se você está vendo isso, a aplicação está funcionando!
+      </p>
+      <p style={{ color: '#888', fontSize: '14px' }}>
+        URL: {window.location.href}
+      </p>
+      <div style={{ 
+        marginTop: '30px', 
+        padding: '20px', 
+        backgroundColor: 'white', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <h2 style={{ color: '#2563eb', marginBottom: '15px' }}>
+          🎉 Aplicação Funcionando!
+        </h2>
+        <p style={{ color: '#666' }}>
+          A interface está carregando corretamente.
+        </p>
+      </div>
+    </div>
   )
 }
 
