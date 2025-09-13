@@ -1,24 +1,29 @@
-import React, { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
-import { 
-  Search, 
-  Upload, 
-  Grid, 
-  List, 
-  Filter, 
-  Download, 
-  Trash2, 
-  Play,
-  Image,
-  Video,
-  Music,
-  File
-} from 'lucide-react'
-import { useAuth } from '../hooks/useAuth'
-import { useMedia } from '../hooks/useMedia'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useAuth } from '../contexts/AuthContext'
+import { useMedia } from '../contexts/MediaContext'
+import { useNotification } from '../contexts/NotificationContext'
+import ModernHeader from '../components/ModernHeader'
+import ModernSidebar from '../components/ModernSidebar'
+import ModernDashboard from '../components/ModernDashboard'
 import MediaManager from '../components/MediaManager'
 import MediaPlayer from '../components/MediaPlayer'
-import MediaStats from '../components/MediaStats'
+import LoadingSkeleton from '../components/LoadingSkeleton'
+import { 
+  Upload, 
+  Search, 
+  Filter, 
+  Grid3X3, 
+  List, 
+  LogOut,
+  Settings,
+  Bell,
+  User,
+  File,
+  Image,
+  Video,
+  Music
+} from 'lucide-react'
 
 const MediaPage = () => {
   const { user, signOut } = useAuth()
@@ -35,9 +40,12 @@ const MediaPage = () => {
     setViewMode,
     setSearchQuery
   } = useMedia()
+  const { success, error } = useNotification()
   
   const [selectedFile, setSelectedFile] = useState(null)
   const [showPlayer, setShowPlayer] = useState(false)
+  const [activeSection, setActiveSection] = useState('dashboard')
+  const [showSidebar, setShowSidebar] = useState(true)
 
   useEffect(() => {
     if (user) {
@@ -45,8 +53,7 @@ const MediaPage = () => {
     }
   }, [user])
 
-  const handleSearch = (e) => {
-    const query = e.target.value
+  const handleSearch = (query) => {
     setSearchQuery(query)
     if (query.trim()) {
       searchFiles(query, user.id)
@@ -60,8 +67,71 @@ const MediaPage = () => {
     setShowPlayer(true)
   }
 
+  const handleUploadClick = () => {
+    // Simular upload
+    success('Funcionalidade de upload será implementada em breve!')
+  }
+
+  const handleLogout = async () => {
+    try {
+      await signOut()
+      success('Logout realizado com sucesso!')
+    } catch (err) {
+      error('Erro ao fazer logout')
+    }
+  }
+
+  const handleFilterChange = (type) => {
+    filterByType(type)
+  }
+
+  const handleViewModeChange = (mode) => {
+    setViewMode(mode)
+  }
+
+  const handleSectionChange = (section) => {
+    setActiveSection(section)
+    
+    // Aplicar filtros baseados na seção
+    switch (section) {
+      case 'images':
+        filterByType('image')
+        break
+      case 'videos':
+        filterByType('video')
+        break
+      case 'audio':
+        filterByType('audio')
+        break
+      case 'documents':
+        filterByType('other')
+        break
+      case 'all-files':
+      case 'dashboard':
+      default:
+        filterByType('all')
+        break
+    }
+  }
+
+  // Calcular estatísticas para o dashboard
+  const stats = {
+    totalFiles: files.length,
+    images: files.filter(f => f.type?.startsWith('image')).length,
+    videos: files.filter(f => f.type?.startsWith('video')).length,
+    audio: files.filter(f => f.type?.startsWith('audio')).length,
+    documents: files.filter(f => !f.type?.startsWith('image') && !f.type?.startsWith('video') && !f.type?.startsWith('audio')).length,
+    storageUsed: files.reduce((acc, file) => acc + (file.size || 0), 0),
+    storageTotal: 100 * 1024 * 1024 * 1024, // 100GB
+    sharedFiles: 0,
+    downloads: 0,
+    recent: files.length
+  }
+
+  const filteredFiles = getFilteredFiles()
+
   const getFileIcon = (type) => {
-    const fileType = type.split('/')[0]
+    const fileType = type?.split('/')[0]
     switch (fileType) {
       case 'image':
         return <Image className="w-6 h-6" />
@@ -74,140 +144,144 @@ const MediaPage = () => {
     }
   }
 
-  const filteredFiles = getFilteredFiles()
-
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="app-container">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                Media Center
-              </h1>
-              <span className="text-sm text-gray-500">
-                {filteredFiles.length} arquivos
-              </span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                Olá, {user?.user_metadata?.name || user?.email}
-              </span>
-              <button
-                onClick={signOut}
-                className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                Sair
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <ModernHeader
+        user={user}
+        onLogout={handleLogout}
+        searchQuery={searchQuery}
+        onSearchChange={handleSearch}
+        viewMode={viewMode}
+        onViewModeChange={handleViewModeChange}
+        onFilterChange={handleFilterChange}
+        onUploadClick={handleUploadClick}
+      />
+
+      <div className="flex">
+        {/* Sidebar */}
+        <AnimatePresence>
+          {showSidebar && (
+            <ModernSidebar
+              activeSection={activeSection}
+              onSectionChange={handleSectionChange}
+              stats={stats}
+            />
+          )}
+        </AnimatePresence>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Statistics */}
-          {!loading && files.length > 0 && (
-            <MediaStats files={files} />
-          )}
+        <main className="main-content">
+          <AnimatePresence mode="wait">
+            {activeSection === 'dashboard' ? (
+              <motion.div
+                key="dashboard"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <ModernDashboard
+                  files={files}
+                  onUploadClick={handleUploadClick}
+                  onViewModeChange={handleViewModeChange}
+                  viewMode={viewMode}
+                />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="media-manager"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+                className="space-y-6"
+              >
+                {/* Section Header */}
+                <div className="premium-card">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-primary-900 capitalize">
+                        {activeSection === 'all-files' ? 'Todos os Arquivos' : 
+                         activeSection === 'images' ? 'Imagens' :
+                         activeSection === 'videos' ? 'Vídeos' :
+                         activeSection === 'audio' ? 'Áudios' :
+                         activeSection === 'documents' ? 'Documentos' :
+                         activeSection === 'favorites' ? 'Favoritos' :
+                         activeSection === 'recent' ? 'Recentes' : 'Arquivos'}
+                      </h2>
+                      <p className="text-primary-500 mt-1">
+                        {filteredFiles.length} arquivo{filteredFiles.length !== 1 ? 's' : ''} encontrado{filteredFiles.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                    <button
+                      onClick={handleUploadClick}
+                      className="btn-premium btn-primary"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Upload
+                    </button>
+                  </div>
+                </div>
 
-          {/* Search and Controls */}
-          <div className="mb-8">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Buscar arquivos..."
-                value={searchQuery}
-                onChange={handleSearch}
-                className="input-field pl-10"
-              />
-            </div>
+                {/* Media Manager */}
+                <MediaManager
+                  files={filteredFiles}
+                  loading={loading}
+                  viewMode={viewMode}
+                  onFileSelect={handleFileSelect}
+                />
 
-            {/* Controls */}
-            <div className="flex items-center space-x-2">
-              {/* Filter */}
-              <div className="relative">
-                <select
-                  value={filterType}
-                  onChange={(e) => filterByType(e.target.value)}
-                  className="input-field pr-8 appearance-none cursor-pointer"
-                >
-                  <option value="all">Todos os tipos</option>
-                  <option value="image">Imagens</option>
-                  <option value="video">Vídeos</option>
-                  <option value="audio">Músicas</option>
-                </select>
-                <Filter className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none" />
-              </div>
-
-              {/* View Mode */}
-              <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className={`p-2 ${viewMode === 'grid' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-                >
-                  <Grid className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className={`p-2 ${viewMode === 'list' ? 'bg-primary-600 text-white' : 'bg-white text-gray-600 hover:bg-gray-50'}`}
-                >
-                  <List className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Media Manager */}
-        <MediaManager
-          files={filteredFiles}
-          loading={loading}
-          viewMode={viewMode}
-          onFileSelect={handleFileSelect}
-        />
-
-        {/* Empty State */}
-        {!loading && filteredFiles.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-12"
-          >
-            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <File className="w-12 h-12 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              Nenhum arquivo encontrado
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {searchQuery ? 'Tente uma busca diferente' : 'Comece fazendo upload de seus arquivos'}
-            </p>
-            {!searchQuery && (
-              <button className="btn-primary">
-                <Upload className="w-4 h-4 mr-2" />
-                Fazer upload
-              </button>
+                {/* Empty State */}
+                {!loading && filteredFiles.length === 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="premium-card text-center py-16"
+                  >
+                    <div className="w-24 h-24 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                      {getFileIcon(activeSection === 'images' ? 'image/jpeg' : 
+                                   activeSection === 'videos' ? 'video/mp4' :
+                                   activeSection === 'audio' ? 'audio/mp3' : 'application/pdf')}
+                    </div>
+                    <h3 className="text-xl font-semibold text-primary-900 mb-2">
+                      Nenhum arquivo encontrado
+                    </h3>
+                    <p className="text-primary-500 mb-8 max-w-md mx-auto">
+                      {searchQuery 
+                        ? 'Tente uma busca diferente ou limpe os filtros' 
+                        : `Comece fazendo upload de ${activeSection === 'images' ? 'imagens' :
+                                                          activeSection === 'videos' ? 'vídeos' :
+                                                          activeSection === 'audio' ? 'áudios' :
+                                                          activeSection === 'documents' ? 'documentos' : 'arquivos'}`}
+                    </p>
+                    <button
+                      onClick={handleUploadClick}
+                      className="btn-premium btn-primary"
+                    >
+                      <Upload className="w-4 h-4 mr-2" />
+                      Fazer Upload
+                    </button>
+                  </motion.div>
+                )}
+              </motion.div>
             )}
-          </motion.div>
-        )}
-      </main>
+          </AnimatePresence>
+        </main>
+      </div>
 
       {/* Media Player Modal */}
-      {showPlayer && selectedFile && (
-        <MediaPlayer
-          file={selectedFile}
-          onClose={() => {
-            setShowPlayer(false)
-            setSelectedFile(null)
-          }}
-        />
-      )}
+      <AnimatePresence>
+        {showPlayer && selectedFile && (
+          <MediaPlayer
+            file={selectedFile}
+            onClose={() => {
+              setShowPlayer(false)
+              setSelectedFile(null)
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
