@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/use-toast';
 import { Input } from '@/components/ui/input';
 import MediaCard from '@/components/MediaCard';
 import { Button } from '@/components/ui/button';
-import { useMedia } from '@/hooks/useMedia';
+import { useMediaSimulated as useMedia } from '@/hooks/useMediaSimulated';
 import { useNavigate } from 'react-router-dom';
 
 const MediaCategoryPage = ({ category, title }) => {

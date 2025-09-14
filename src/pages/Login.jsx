@@ -21,18 +21,24 @@ const LoginPage = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await login(email, password);
-            toast({
-                title: "Login bem-sucedido! 🎉",
-                description: "Bem-vindo de volta à sua galeria.",
-            });
-            navigate('/');
+            const result = await login(email, password);
+            if (result.success) {
+                toast({
+                    title: "Login bem-sucedido! 🎉",
+                    description: "Bem-vindo de volta à sua galeria.",
+                });
+                navigate('/');
+            } else {
+                throw new Error(result.error || 'Erro no login');
+            }
         } catch (error) {
+            console.error('Erro no login:', error);
             toast({
                 title: "Erro de Login",
-                description: "Houve um problema ao tentar fazer login. Tente novamente.",
+                description: error.message || "Houve um problema ao tentar fazer login. Tente novamente.",
                 variant: "destructive",
             });
+        } finally {
             setIsLoading(false);
         }
     };

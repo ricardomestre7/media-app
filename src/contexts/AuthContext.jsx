@@ -55,29 +55,32 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      // Simulação de chamada para API - substitua pela sua URL do VPS
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:3001'}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Credenciais inválidas');
-      }
-
-      const data = await response.json();
-      console.log('Resposta da API:', data); // Debug log
+      // Simulação de delay para parecer real
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Salvar token e dados do usuário
-      localStorage.setItem('authToken', data.token);
-      localStorage.setItem('userData', JSON.stringify(data.user));
+      // Login simulado - aceita qualquer email/senha
+      console.log('Login simulado para:', email);
       
-      setUser(data.user);
+      // Dados do usuário simulados
+      const userData = {
+        id: '1',
+        email: email,
+        name: email.split('@')[0],
+        avatar: `https://i.pravatar.cc/150?u=${email}`,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Token simulado
+      const token = 'simulated_token_' + Date.now();
+      
+      // Salvar no localStorage
+      localStorage.setItem('authToken', token);
+      localStorage.setItem('userData', JSON.stringify(userData));
+      
+      setUser(userData);
       setIsAuthenticated(true);
+      
+      console.log('Login simulado bem-sucedido:', userData);
       
       return { success: true };
     } catch (error) {

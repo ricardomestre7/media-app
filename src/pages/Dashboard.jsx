@@ -25,7 +25,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useMedia } from '@/hooks/useMedia';
+import { useMediaSimulated as useMedia } from '@/hooks/useMediaSimulated';
 import MediaCard from '@/components/MediaCard';
 import Sidebar from '@/components/layout/Sidebar';
 import Header from '@/components/layout/Header';
