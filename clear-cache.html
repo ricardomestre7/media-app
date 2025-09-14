@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limpar Cache - Mídia Azul</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .success {
+            color: #28a745;
+            margin-top: 15px;
+        }
+        .info {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧹 Limpar Cache do Navegador</h1>
+        
+        <div class="info">
+            <p><strong>Esta ferramenta irá:</strong></p>
+            <ul>
+                <li>Limpar localStorage</li>
+                <li>Limpar sessionStorage</li>
+                <li>Remover dados antigos do Supabase</li>
+                <li>Resetar configurações de autenticação</li>
+            </ul>
+        </div>
+
+        <button onclick="clearAllCache()">🗑️ Limpar Tudo</button>
+        <button onclick="clearAuthOnly()">🔐 Limpar Apenas Auth</button>
+        <button onclick="goToLogin()">➡️ Ir para Login</button>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function clearAllCache() {
+            try {
+                // Limpar localStorage
+                localStorage.clear();
+                
+                // Limpar sessionStorage
+                sessionStorage.clear();
+                
+                // Limpar cookies relacionados ao Supabase
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                showResult('✅ Cache limpo com sucesso! Todos os dados foram removidos.', 'success');
+                
+                // Recarregar a página após 2 segundos
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2000);
+                
+            } catch (error) {
+                showResult('❌ Erro ao limpar cache: ' + error.message, 'error');
+            }
+        }
+        
+        function clearAuthOnly() {
+            try {
+                // Remover apenas dados de autenticação
+                const keysToRemove = [
+                    'authToken',
+                    'userData',
+                    'supabase.auth.token',
+                    'sb-',
+                    'supabase'
+                ];
+                
+                // Remover chaves específicas do localStorage
+                Object.keys(localStorage).forEach(key => {
+                    keysToRemove.forEach(pattern => {
+                        if (key.includes(pattern)) {
+                            localStorage.removeItem(key);
+                        }
+                    });
+                });
+                
+                // Remover do sessionStorage também
+                Object.keys(sessionStorage).forEach(key => {
+                    keysToRemove.forEach(pattern => {
+                        if (key.includes(pattern)) {
+                            sessionStorage.removeItem(key);
+                        }
+                    });
+                });
+                
+                showResult('✅ Dados de autenticação limpos! Você pode fazer login novamente.', 'success');
+                
+            } catch (error) {
+                showResult('❌ Erro ao limpar dados de auth: ' + error.message, 'error');
+            }
+        }
+        
+        function goToLogin() {
+            window.location.href = 'http://localhost:5173/login';
+        }
+        
+        function showResult(message, type) {
+            const result = document.getElementById('result');
+            result.innerHTML = `<p class="${type}">${message}</p>`;
+        }
+        
+        // Mostrar informações atuais do storage
+        window.onload = function() {
+            const localStorageCount = Object.keys(localStorage).length;
+            const sessionStorageCount = Object.keys(sessionStorage).length;
+            
+            showResult(`📊 Itens no localStorage: ${localStorageCount} | sessionStorage: ${sessionStorageCount}`, 'info');
+        }
+    </script>
+</body>
+</html>

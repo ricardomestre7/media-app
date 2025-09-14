@@ -1,0 +1,165 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 217.2 91.2% 59.8%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 93.5% 67.8%;
+    --radius: 0.75rem;
+  }
+}
+
+body {
+  @apply bg-gradient-to-br from-blue-900 via-blue-950 to-slate-900 text-slate-100 min-h-screen;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.glass-effect {
+  @apply bg-blue-900/40 backdrop-blur-lg border border-blue-700/50;
+  box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.2), 
+              inset 0 -2px 4px 0 rgba(255, 255, 255, 0.05),
+              0 0 40px rgba(30, 144, 255, 0.1);
+}
+
+.gradient-text {
+  @apply bg-gradient-to-r from-blue-300 via-cyan-300 to-sky-300 bg-clip-text text-transparent;
+}
+
+.media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.media-card {
+  @apply glass-effect rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:bg-blue-800/60;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(30, 144, 255, 0.2);
+}
+
+.upload-zone {
+  @apply glass-effect rounded-xl border-2 border-dashed border-blue-500/50 p-8 text-center hover:border-blue-400 transition-all duration-300;
+}
+
+.category-badge {
+  @apply px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-600/50 to-cyan-600/50 border border-blue-500/60 text-cyan-200;
+}
+
+.search-input {
+  @apply glass-effect rounded-lg px-4 py-3 w-full text-white placeholder-blue-300/50 border-0 focus:ring-2 focus:ring-cyan-400 transition-all duration-300;
+}
+
+.floating-action {
+  @apply fixed bottom-6 right-6 bg-gradient-to-r from-blue-500 to-cyan-500 text-white p-4 rounded-full shadow-2xl hover:shadow-cyan-400/30 transition-all duration-300 transform hover:scale-110;
+}
+
+.sidebar {
+  @apply glass-effect rounded-xl p-0 h-fit sticky top-6 overflow-hidden;
+}
+
+.filter-button {
+  @apply w-full text-left px-4 py-3 hover:bg-blue-800/50 transition-all duration-200 flex items-center gap-3 text-slate-300 hover:text-white;
+}
+
+.filter-button.active {
+  @apply bg-gradient-to-r from-blue-700/50 to-cyan-700/50 border-l-4 border-cyan-400 text-white font-semibold;
+  padding-left: calc(1rem - 4px);
+}
+
+.pagination-button {
+  @apply px-4 py-2 rounded-lg glass-effect hover:bg-blue-800/50 transition-all duration-200;
+}
+
+.pagination-button.active {
+  @apply bg-gradient-to-r from-blue-600 to-cyan-600 text-white;
+}
+
+.loading-spinner {
+  @apply animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400;
+}
+
+.modal-overlay {
+  @apply fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4;
+}
+
+.modal-content {
+  @apply glass-effect rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto border-blue-600;
+}
+
+.action-button {
+  @apply p-2 rounded-lg glass-effect hover:bg-blue-800/70 transition-all duration-200;
+}
+
+.grid-view {
+  @apply media-grid;
+}
+
+.list-view {
+  @apply space-y-4;
+}
+
+.list-item {
+  @apply glass-effect rounded-xl p-4 flex items-center gap-4 hover:bg-blue-800/50 transition-all duration-300;
+}
+
+.thumbnail {
+  @apply w-16 h-16 object-cover rounded-lg flex-shrink-0 bg-slate-900/50;
+}
+
+.bulk-actions {
+  @apply glass-effect rounded-xl p-4 mb-6 flex items-center gap-4;
+}
+
+.checkbox-custom {
+  @apply w-5 h-5 rounded border-2 border-blue-500 bg-transparent checked:bg-blue-600 checked:border-blue-400;
+}
+
+.dropdown-menu {
+  @apply glass-effect rounded-xl p-2 shadow-2xl border-blue-700/70;
+}
+
+.dropdown-item {
+  @apply px-4 py-2 rounded-lg hover:bg-blue-800/50 transition-all duration-200 cursor-pointer;
+}
+
+.user-avatar {
+  @apply w-10 h-10 rounded-full border-2 border-cyan-400 object-cover ring-2 ring-blue-500/50;
+}
+
+.notification-badge {
+  @apply absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center;
+}
+
+.empty-state {
+  @apply text-center py-12 text-blue-300/70;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 mx-auto mb-4 text-blue-500/50;
+}
+
+.selection-count {
+  @apply bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium;
+}
+
+.media-preview {
+    @apply w-full h-48 object-cover rounded-lg mb-3 bg-slate-900/50 flex items-center justify-center;
+}

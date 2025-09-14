@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug API Connection</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Debug API Connection</h1>
+    
+    <div class="test-section">
+        <h3>Teste 1: Health Check</h3>
+        <button onclick="testHealthCheck()">Testar Health Check</button>
+        <div id="health-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Teste 2: Login API</h3>
+        <button onclick="testLogin()">Testar Login</button>
+        <div id="login-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Teste 3: CORS Preflight</h3>
+        <button onclick="testCORS()">Testar CORS</button>
+        <div id="cors-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3001';
+        
+        function logResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            const className = isError ? 'error' : 'success';
+            element.innerHTML = `<div class="${className}"><pre>${message}</pre></div>`;
+        }
+        
+        async function testHealthCheck() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                logResult('health-result', `✅ Success: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                logResult('health-result', `❌ Error: ${error.message}\n${error.stack}`, true);
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@midiaazul.com',
+                        password: 'admin123'
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                logResult('login-result', `✅ Success: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                logResult('login-result', `❌ Error: ${error.message}\n${error.stack}`, true);
+            }
+        }
+        
+        async function testCORS() {
+            try {
+                // Teste de preflight CORS
+                const response = await fetch(`${API_BASE}/api/auth/login`, {
+                    method: 'OPTIONS'
+                });
+                
+                const headers = {};
+                for (let [key, value] of response.headers.entries()) {
+                    headers[key] = value;
+                }
+                
+                logResult('cors-result', `✅ CORS Headers: ${JSON.stringify(headers, null, 2)}`);
+            } catch (error) {
+                logResult('cors-result', `❌ CORS Error: ${error.message}\n${error.stack}`, true);
+            }
+        }
+        
+        // Executar testes automaticamente ao carregar
+        window.onload = function() {
+            console.log('🔍 Iniciando testes de debug da API...');
+            testHealthCheck();
+        };
+    </script>
+</body>
+</html>

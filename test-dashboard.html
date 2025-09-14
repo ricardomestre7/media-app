@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Dashboard - Mídia Azul</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a, #1e40af, #3b82f6);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #60a5fa, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            margin: 10px;
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+        .success {
+            background: rgba(34, 197, 94, 0.2);
+            border: 2px solid #22c55e;
+        }
+        .info {
+            background: rgba(59, 130, 246, 0.2);
+            border: 2px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Teste de Acesso ao Dashboard</h1>
+        
+        <div class="status info">
+            ✅ Frontend rodando em: <strong>http://localhost:5174</strong><br>
+            ✅ Backend rodando em: <strong>http://localhost:3001</strong>
+        </div>
+
+        <div class="status success">
+            🔍 Testando páginas do sistema:<br>
+            📱 Login, Dashboard e funcionalidades
+        </div>
+
+        <button class="btn" onclick="testarLogin()">🔐 Testar Página de Login</button>
+        <button class="btn" onclick="testarDashboard()">📊 Testar Dashboard</button>
+        <button class="btn" onclick="testarSupabase()">🔧 Testar Supabase</button>
+        
+        <div id="resultado" class="status info" style="display: none;"></div>
+    </div>
+
+    <script>
+        function testarLogin() {
+            window.open('http://localhost:5174/login', '_blank');
+        }
+        
+        function testarDashboard() {
+            window.open('http://localhost:5174/dashboard', '_blank');
+        }
+        
+        function testarSupabase() {
+            window.open('http://localhost:5174/supabase-test', '_blank');
+        }
+        
+        // Testar se as páginas estão acessíveis
+        async function verificarPaginas() {
+            const resultado = document.getElementById('resultado');
+            resultado.style.display = 'block';
+            resultado.innerHTML = '🔄 Verificando páginas...';
+            
+            try {
+                // Testar se o servidor está rodando
+                const response = await fetch('http://localhost:5174/');
+                if (response.ok) {
+                    resultado.innerHTML = '✅ Servidor frontend funcionando!<br>📱 Clique nos botões acima para testar as páginas.';
+                    resultado.className = 'status success';
+                } else {
+                    resultado.innerHTML = '⚠️ Servidor frontend com problemas.';
+                    resultado.className = 'status info';
+                }
+            } catch (error) {
+                resultado.innerHTML = '❌ Erro: Servidor frontend não está rodando.';
+                resultado.className = 'status info';
+            }
+        }
+        
+        // Verificar automaticamente ao carregar
+        window.onload = verificarPaginas;
+    </script>
+</body>
+</html>
