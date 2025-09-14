@@ -33,11 +33,12 @@ const MediaGallery = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
+      className="overflow-y-auto scrollbar-thin scrollbar-thumb-blue-700 scrollbar-track-transparent"
     >
       <h1 className="text-3xl font-bold text-white mb-6">{getGridTitle()}</h1>
       <AnimatePresence>
-        <motion.div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {filteredItems.map((item, index) => (
+        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {filteredItems.slice(0, 4).map((item, index) => (
             <MediaCard key={item.id} item={item} index={index} />
           ))}
         </motion.div>

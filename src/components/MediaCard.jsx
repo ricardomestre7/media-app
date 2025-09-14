@@ -75,10 +75,11 @@ const MediaCard = ({ item, index }) => {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
         transition={{ duration: 0.3, delay: index * 0.05 }}
-        className="relative group overflow-hidden rounded-lg shadow-lg cursor-pointer media-card-hover"
+        className="relative group overflow-hidden rounded-lg shadow-lg cursor-pointer media-card-hover flex flex-row h-32"
         onClick={handleCardClick}
       >
-        <div className="aspect-w-1 aspect-h-1 w-full">
+        {/* Thumbnail/Preview - lado esquerdo */}
+        <div className="w-32 h-full flex-shrink-0">
           {item.type === 'image' || item.type === 'gif' ? (
             <img
               className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-110"
@@ -90,35 +91,45 @@ const MediaCard = ({ item, index }) => {
             />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-              {typeIcons[item.type] && React.cloneElement(typeIcons[item.type], { className: "h-12 w-12 text-white/60" })}
+              {typeIcons[item.type] && React.cloneElement(typeIcons[item.type], { className: "h-8 w-8 text-white/60" })}
+            </div>
+          )}
+          
+          {/* Overlay para vídeo/áudio */}
+          {(item.type === 'video' || item.type === 'audio') && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <PlayCircle className="h-8 w-8 text-white/70 opacity-0 transform scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100" />
             </div>
           )}
         </div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-        
-        {(item.type === 'video' || item.type === 'audio') && (
-          <div className="absolute inset-0 flex items-center justify-center">
-            <PlayCircle className="h-16 w-16 text-white/70 opacity-0 transform scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100" />
-          </div>
-        )}
 
-        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            onClick={handleDownload}
-            className="p-2 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors"
-          >
-            <Download className="h-4 w-4 text-white" />
-          </button>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-          <div className="flex items-center justify-between">
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-sm truncate pr-2">{item.name || item.title}</h3>
-              <p className="text-xs text-white/70 truncate">{item.size}</p>
+        {/* Conteúdo - lado direito */}
+        <div className="flex-1 flex flex-col justify-between p-4 bg-gradient-to-r from-gray-800/90 to-gray-900/90">
+          {/* Header com tipo e download */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="p-1.5 bg-white/20 backdrop-blur-sm rounded-full">
+                {typeIcons[item.type]}
+              </div>
+              <span className="text-sm text-white/70 capitalize">{item.type}</span>
             </div>
-            <div className="flex-shrink-0 p-1.5 bg-white/20 backdrop-blur-sm rounded-full">
-              {typeIcons[item.type]}
+            <button
+              onClick={handleDownload}
+              className="p-1.5 bg-black/50 backdrop-blur-sm rounded-full hover:bg-black/70 transition-colors opacity-0 group-hover:opacity-100"
+            >
+              <Download className="h-4 w-4 text-white" />
+            </button>
+          </div>
+
+          {/* Título e informações */}
+          <div className="flex-1 flex flex-col justify-center">
+            <h3 className="font-semibold text-sm text-white truncate mb-2">
+              {item.name || item.title}
+            </h3>
+            <div className="flex items-center space-x-2 text-sm text-white/70">
+              <span>{item.size}</span>
+              <span>•</span>
+              <span>{item.date}</span>
             </div>
           </div>
         </div>

@@ -1,251 +1,245 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  Archive, Search as SearchIcon, Upload, Trash2, Download, Share2, Edit, 
-  Image, Video, Music, File, Star, MoreVertical, X
+import React, { useState, useRef } from 'react';
+import {
+  Search,
+  Upload,
+  Image,
+  Film,
+  Volume2,
+  BookOpen,
+  Play,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { useMediaSimulated as useMedia } from '@/hooks/useMediaSimulated';
-import MediaCard from '@/components/MediaCard';
-import Sidebar from '@/components/layout/Sidebar';
-import Header from '@/components/layout/Header';
-
-const UploadModal = ({ isOpen, onClose, onUpload }) => {
-  const [files, setFiles] = useState([]);
-  const [isUploading, setIsUploading] = useState(false);
-
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFiles(prev => [...prev, ...Array.from(e.target.files)]);
-    }
-  };
-
-  const handleUploadClick = async () => {
-    if (files.length === 0) return;
-    setIsUploading(true);
-    try {
-      await onUpload(files);
-      setFiles([]);
-      onClose();
-    } catch (error) {
-      // Error toast is handled by the hook
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <Dialog open onOpenChange={onClose}>
-          <DialogContent className="modal-content sm:max-w-[525px]">
-            <DialogHeader>
-              <DialogTitle className="gradient-text">Fazer Upload de Mídias para o VPS</DialogTitle>
-              <DialogDescription>Arraste e solte seus arquivos ou clique para selecionar.</DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="upload-zone">
-                <Upload className="mx-auto h-12 w-12 text-blue-400" />
-                <p className="mt-2 text-sm text-blue-300/80">Arraste arquivos ou <label htmlFor="file-upload" className="font-medium text-cyan-400 hover:text-cyan-300 cursor-pointer">clique para procurar</label>.</p>
-                <input id="file-upload" type="file" className="sr-only" multiple onChange={handleFileChange} />
-              </div>
-              <div className="space-y-2 max-h-40 overflow-y-auto">
-                {files.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 glass-effect rounded-lg">
-                    <span className="text-sm truncate w-60">{file.name}</span>
-                    <span className="text-xs text-blue-300/70">{(file.size / 1024 / 1024).toFixed(2)} MB</span>
-                    <button onClick={() => setFiles(files.filter((_, i) => i !== index))}><X className="h-4 w-4" /></button>
-                  </div>
-                ))}
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={onClose} disabled={isUploading}>Cancelar</Button>
-              <Button onClick={handleUploadClick} disabled={isUploading || files.length === 0} className="bg-gradient-to-r from-blue-500 to-cyan-500">
-                {isUploading ? 'Enviando...' : `Enviar ${files.length} Arquivo(s)`}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </AnimatePresence>
-  );
-};
-
-const MediaListItem = ({ item, onSelect, isSelected, onShare, onDownload, onDelete, onRename }) => (
-    <motion.div layout initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 30 }} transition={{ duration: 0.3 }} className="list-item">
-      <Checkbox checked={isSelected} onCheckedChange={() => onSelect(item.id)} className="checkbox-custom flex-shrink-0" />
-      <div className="flex items-center gap-4 flex-1 truncate">
-        <div className="flex-shrink-0 w-8 h-8">
-            {item.type === 'image' && <Image className="w-full h-full text-cyan-300" />}
-            {item.type === 'video' && <Video className="w-full h-full text-blue-300" />}
-            {item.type === 'audio' && <Music className="w-full h-full text-sky-300" />}
-            {item.type === 'gif' && <Archive className="w-full h-full text-teal-300" />}
-            {!['image', 'video', 'audio', 'gif'].includes(item.type) && <File className="w-full h-full text-slate-400" />}
-        </div>
-        <span className="font-semibold text-white truncate">{item.name}</span>
-      </div>
-      <span className="category-badge hidden md:inline-flex">{item.category}</span>
-      <span className="w-24 text-sm text-blue-200/70 hidden lg:block">{new Date(item.date).toLocaleDateString()}</span>
-      <span className="w-20 text-sm text-blue-200/70 hidden sm:block">{`${(item.size / 1024 / 1024).toFixed(2)} MB`}</span>
-      {item.isFavorite && <Star className="h-5 w-5 text-yellow-400 flex-shrink-0" />}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild><button className="action-button"><MoreVertical className="h-5 w-5" /></button></DropdownMenuTrigger>
-        <DropdownMenuContent className="dropdown-menu">
-          <DropdownMenuItem className="dropdown-item" onClick={() => onShare(item.id)}><Share2 className="mr-2 h-4 w-4"/>Compartilhar</DropdownMenuItem>
-          <DropdownMenuItem className="dropdown-item" onClick={() => onDownload(item)}><Download className="mr-2 h-4 w-4"/>Baixar</DropdownMenuItem>
-          <DropdownMenuItem className="dropdown-item" onClick={() => onRename(item)}><Edit className="mr-2 h-4 w-4"/>Renomear</DropdownMenuItem>
-          <DropdownMenuSeparator className="bg-blue-700/50" />
-          <DropdownMenuItem className="dropdown-item text-red-400" onClick={() => onDelete([item.id])}><Trash2 className="mr-2 h-4 w-4"/>Lixeira</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </motion.div>
-  );
 
 const Dashboard = () => {
-  const { mediaItems, storageStats, loading, uploadMedia, deleteMedia } = useMedia();
   const [searchTerm, setSearchTerm] = useState('');
-  const [layout, setLayout] = useState('grid');
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-  const { toast } = useToast();
-  const { filterType } = useParams();
-  const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
-  const currentFilter = filterType || 'all';
+  const handleFileUpload = (event) => {
+    const files = Array.from(event.target.files);
+    console.log('Arquivos selecionados:', files);
+    alert(`${files.length} arquivo(s) selecionado(s).`);
+  };
 
-  const filteredMedia = useMemo(() => {
-    let items = mediaItems;
-    switch (currentFilter) {
-      case 'favorites': items = items.filter(item => item.isFavorite && !item.isDeleted); break;
-      case 'trash': items = items.filter(item => item.isDeleted); break;
-      case 'recent': items = [...items].sort((a, b) => new Date(b.date) - new Date(a.date)).filter(item => !item.isDeleted); break;
-      case 'shared': items = []; break; // Placeholder
-      default: items = items.filter(item => !item.isDeleted); break;
+  const categories = [
+    {
+      id: 'images',
+      name: 'Imagens',
+      icon: Image,
+      count: '2.4k',
+      description: 'Fotografias, ilustrações e designs',
+      gradient: 'from-blue-500 to-blue-600',
+      iconBg: 'bg-blue-100',
+      iconColor: 'text-blue-600'
+    },
+    {
+      id: 'videos',
+      name: 'Vídeos',
+      icon: Film,
+      count: '892',
+      description: 'Conteúdos audiovisuais e apresentações',
+      gradient: 'from-purple-500 to-purple-600',
+      iconBg: 'bg-purple-100',
+      iconColor: 'text-purple-600'
+    },
+    {
+      id: 'gifs',
+      name: 'GIFs',
+      icon: Play,
+      count: '156',
+      description: 'Animações e momentos em loop',
+      gradient: 'from-green-500 to-green-600',
+      iconBg: 'bg-green-100',
+      iconColor: 'text-green-600'
+    },
+    {
+      id: 'audios',
+      name: 'Áudios',
+      icon: Volume2,
+      count: '341',
+      description: 'Podcasts, músicas e gravações',
+      gradient: 'from-orange-500 to-orange-600',
+      iconBg: 'bg-orange-100',
+      iconColor: 'text-orange-600'
+    },
+    {
+      id: 'ebooks',
+      name: 'Ebooks',
+      icon: BookOpen,
+      count: '127',
+      description: 'Livros digitais e documentos',
+      gradient: 'from-red-500 to-red-600',
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-600'
     }
+  ];
 
-    if (searchTerm.trim()) {
-      const lowerSearchTerm = searchTerm.toLowerCase();
-      items = items.filter(item =>
-        item.name.toLowerCase().includes(lowerSearchTerm) ||
-        item.type.toLowerCase().includes(lowerSearchTerm) ||
-        item.category.toLowerCase().includes(lowerSearchTerm)
-      );
-    }
-    return items;
-  }, [mediaItems, currentFilter, searchTerm]);
-
-  const handleSelect = (id) => {
-    setSelectedItems(prev =>
-      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
-    );
-  };
-  
-  const handleShare = (itemId) => {
-    const shareUrl = `${window.location.origin}/share/${itemId}`;
-    navigator.clipboard.writeText(shareUrl);
-    toast({
-      title: "Link Copiado!",
-      description: "O link de compartilhamento está na sua área de transferência.",
-    });
-  };
-
-  const handleDownload = (item) => {
-     toast({
-      title: `Baixando ${item.name}`,
-      description: "Seu download (simulado) começará em breve.",
-    });
-    // In a real app: window.open(item.url, '_blank');
-  };
-  
-  const handleBulkDelete = () => {
-    deleteMedia(selectedItems);
-    setSelectedItems([]);
-  };
-
-  const handleRename = (item) => {
-    toast({
-        description: `🚧 Renomear "${item.name}" ainda não foi implementado!`,
-    });
-  }
-
-  const BulkActions = () => (
-    <AnimatePresence>
-      {selectedItems.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="bulk-actions">
-          <span className="selection-count">{selectedItems.length} selecionado(s)</span>
-          <div className="flex gap-2 ml-auto">
-            <button className="action-button" onClick={() => toast({ description: "🚧 Ação em massa não implementada." })}><Share2 className="h-5 w-5" /></button>
-            <button className="action-button" onClick={() => toast({ description: "🚧 Ação em massa não implementada." })}><Download className="h-5 w-5" /></button>
-            <button className="action-button" onClick={() => toast({ description: "🚧 Ação em massa não implementada." })}><Star className="h-5 w-5" /></button>
-            <button className="action-button" onClick={handleBulkDelete}><Trash2 className="h-5 w-5 text-red-400" /></button>
+  const CategoryCard = ({ category }) => (
+    <div className="group cursor-pointer">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:shadow-blue-100/50 transition-all duration-300 transform hover:-translate-y-1">
+        <div className={`h-32 bg-gradient-to-br ${category.gradient} relative overflow-hidden`}>
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="absolute bottom-4 left-4">
+            <div className={`w-12 h-12 ${category.iconBg} rounded-xl flex items-center justify-center`}>
+              <category.icon size={24} className={category.iconColor} />
+            </div>
           </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <div className="absolute top-4 right-4 text-white/90 font-semibold">
+            {category.count}
+          </div>
+        </div>
+        
+        <div className="p-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            {category.name}
+          </h3>
+          <p className="text-gray-500 text-sm mb-4">
+            {category.description}
+          </p>
+          <div className="flex items-center text-blue-600 font-medium text-sm group-hover:gap-2 gap-1 transition-all">
+            Explorar
+            <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 
   return (
-    <>
-      <Helmet><title>Dashboard | Mídia Azul</title></Helmet>
-      <div className="flex min-h-screen p-4 gap-6">
-        <Sidebar currentFilter={currentFilter} storageStats={storageStats} />
-        <main className="flex-1 flex flex-col">
-          <Header onSearch={setSearchTerm} onUploadClick={() => setIsUploadModalOpen(true)} onLayoutChange={setLayout} layout={layout} />
-          <BulkActions />
-          <div className="flex-1 overflow-y-auto">
-              {loading ? (
-                <div className="flex justify-center items-center h-full"><div className="loading-spinner"></div></div>
-              ) : (
-                <AnimatePresence mode="wait">
-                  <motion.div key={layout} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
-                    {filteredMedia.length === 0 ? (
-                      <div className="empty-state">
-                        <Archive className="empty-state-icon" />
-                        <h3 className="text-xl font-semibold">Nenhuma mídia encontrada</h3>
-                        <p>Tente ajustar seu filtro ou fazer um novo upload.</p>
-                      </div>
-                    ) : layout === 'grid' ? (
-                      <div className="grid-view">
-                        {filteredMedia.map((item) => (
-                          <MediaCard key={item.id} item={item} onShare={handleShare} onDownload={handleDownload} onDelete={deleteMedia} onRename={handleRename} />
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="list-view">
-                        {filteredMedia.map(item => (
-                          <MediaListItem key={item.id} item={item} onSelect={handleSelect} isSelected={selectedItems.includes(item.id)} onShare={handleShare} onDownload={handleDownload} onDelete={deleteMedia} onRename={handleRename} />
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              )}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header / Mini Menu */}
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
+                <Image className="text-white" size={20} />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">MediaHub</h1>
+                <p className="text-sm text-gray-500">Sua biblioteca de conteúdo</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Pesquisar na sua mídia..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 w-80 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                />
+              </div>
+              
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
+              >
+                <Upload size={18} />
+                Upload
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                onChange={handleFileUpload}
+                className="hidden"
+                accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.epub"
+              />
+            </div>
           </div>
-        </main>
-        <UploadModal isOpen={isUploadModalOpen} onClose={() => setIsUploadModalOpen(false)} onUpload={uploadMedia} />
+        </div>
       </div>
-    </>
+
+      {/* Hero Section */}
+      <div className="relative h-96 overflow-hidden">
+        {/* Navegação do slider */}
+        <button className="absolute left-6 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+          <ChevronLeft size={20} />
+        </button>
+        <button className="absolute right-6 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center text-white hover:bg-white/30 transition-colors z-10">
+          <ChevronRight size={20} />
+        </button>
+
+        {/* Background com gradiente */}
+        <div 
+          className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/80"
+          style={{
+            backgroundImage: 'url("https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1400&h=600&fit=crop&q=80")',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        />
+        
+        {/* Conteúdo centralizado */}
+        <div className="relative h-full flex items-center justify-center text-center text-white px-8">
+          <div className="max-w-4xl">
+            <h2 className="text-5xl font-bold mb-6 text-white leading-tight">
+              Sua Biblioteca Digital
+            </h2>
+            <p className="text-xl text-blue-100 mb-8 leading-relaxed max-w-2xl mx-auto">
+              Organize, compartilhe e acesse todos os seus conteúdos multimídia em um só lugar. 
+              Simplifique seu fluxo de trabalho com nossa plataforma intuitiva.
+            </p>
+            <button className="bg-white text-blue-900 px-8 py-4 rounded-xl font-semibold hover:bg-blue-50 transition-all duration-200 shadow-xl text-lg inline-flex items-center gap-2">
+              Explorar Conteúdo
+              <ArrowRight size={20} />
+            </button>
+          </div>
+        </div>
+
+        {/* Indicadores do slider */}
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex gap-2">
+          <div className="w-3 h-3 bg-white rounded-full"></div>
+          <div className="w-3 h-3 bg-white/50 rounded-full"></div>
+          <div className="w-3 h-3 bg-white/50 rounded-full"></div>
+        </div>
+      </div>
+
+      {/* Categories Section */}
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="text-center mb-12">
+          <h3 className="text-3xl font-bold text-gray-900 mb-4">
+            Explore por Categoria
+          </h3>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Encontre rapidamente o tipo de conteúdo que você precisa. 
+            Cada categoria é otimizada para uma melhor experiência de navegação.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-8">
+          {categories.map(category => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </div>
+
+        {/* Stats Section */}
+        <div className="mt-20 bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-blue-600 mb-2">3.9k</div>
+              <div className="text-gray-600">Total de Arquivos</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-green-600 mb-2">2.1GB</div>
+              <div className="text-gray-600">Espaço Utilizado</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-purple-600 mb-2">156</div>
+              <div className="text-gray-600">Compartilhamentos</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-orange-600 mb-2">89%</div>
+              <div className="text-gray-600">Organizado</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

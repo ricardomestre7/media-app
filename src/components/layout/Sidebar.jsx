@@ -14,33 +14,33 @@ const navItems = [
 
 const Sidebar = () => {
   return (
-    <aside className="w-64 flex-shrink-0 bg-gray-900/70 backdrop-blur-lg border-r border-gray-700/50 p-6 flex flex-col">
+    <aside className="w-64 bg-gray-900/70 backdrop-blur-lg border-r border-gray-700/50 p-6 flex flex-col">
       <div className="flex items-center gap-3 mb-10">
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ duration: 0.5, type: 'spring', stiffness: 120 }}
-          className="w-10 h-10 bg-gradient-to-tr from-purple-600 to-indigo-400 rounded-lg flex items-center justify-center"
+          className="w-10 h-10 bg-gradient-to-tr from-blue-600 to-cyan-400 rounded-lg flex items-center justify-center"
         >
           <ImageIcon className="text-white h-6 w-6" />
         </motion.div>
         <span className="text-xl font-bold text-white">MediaHub</span>
       </div>
-      <nav className="flex flex-col gap-2">
+      <nav className="flex flex-col gap-2 mt-6">
         {navItems.map((item, index) => (
           <motion.div
             key={item.to}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 * index }}
+            transition={{ delay: index * 0.1 }}
           >
             <NavLink
               to={item.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors duration-200 ${
+                `flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 group ${
                   isActive
-                    ? 'bg-purple-600/20 text-purple-300'
-                    : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'
+                    ? 'bg-blue-600/20 text-blue-300 border-l-4 border-blue-400'
+                    : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'
                 }`
               }
             >

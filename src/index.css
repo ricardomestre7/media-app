@@ -44,11 +44,7 @@ body {
   @apply bg-gradient-to-r from-blue-300 via-cyan-300 to-sky-300 bg-clip-text text-transparent;
 }
 
-.media-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-}
+/* Grid responsivo agora é aplicado diretamente no JSX */
 
 .media-card {
   @apply glass-effect rounded-xl p-4 transition-all duration-300 transform hover:scale-105 hover:bg-blue-800/60;
@@ -109,7 +105,9 @@ body {
 }
 
 .grid-view {
-  @apply media-grid;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .list-view {

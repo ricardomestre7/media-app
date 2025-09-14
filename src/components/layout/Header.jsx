@@ -28,27 +28,22 @@ const Header = ({ onUploadClick, onSearchChange }) => {
   };
 
   return (
-    <header className="flex-shrink-0 bg-gray-900/80 backdrop-blur-sm border-b border-blue-900/50 z-20">
-      <div className="flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-        <div className="relative flex-1 max-w-xs hidden sm:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-blue-300/70" />
-          <Input
-            type="search"
-            placeholder="Pesquisar na sua mídia..."
-            className="w-full pl-10 pr-4 py-2 bg-slate-800/50 border-blue-800/60 rounded-lg focus:ring-cyan-500 focus:border-cyan-500 placeholder-blue-300/50"
-            onChange={(e) => onSearchChange(e.target.value)}
-            onClick={handleSearchClick}
-          />
-        </div>
-        <div className="flex items-center gap-4 ml-auto">
-          <Button
-            variant="ghost"
-            className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white rounded-full shadow-lg shadow-cyan-500/20 hover:shadow-cyan-500/40 hover:-translate-y-px transition-all"
+    <div className="flex justify-between items-center mb-6">
+      <input
+        type="text"
+        placeholder="Pesquisar na sua mídia..."
+        className="bg-[#2a2a40] text-white px-4 py-2 rounded-lg w-full max-w-md"
+        onChange={(e) => onSearchChange(e.target.value)}
+        onClick={handleSearchClick}
+      />
+      <div className="flex items-center gap-4 ml-4">
+          <button 
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2"
             onClick={onUploadClick}
           >
-            <Upload className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Upload</span>
-          </Button>
+            <Upload className="h-5 w-5" />
+            Upload
+          </button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -76,8 +71,7 @@ const Header = ({ onUploadClick, onSearchChange }) => {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div>
-    </header>
+    </div>
   );
 };
 

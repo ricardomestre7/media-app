@@ -185,3 +185,4 @@ print_message "5. Monitore o uso de recursos"
 print_header
 print_message "Deploy finalizado! 🚀"
 
+
