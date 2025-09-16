@@ -214,7 +214,7 @@ export default defineConfig({
 			'Cross-Origin-Embedder-Policy': 'credentialless',
 		},
 		allowedHosts: true,
-		host: '0.0.0.0',
+		host: 'localhost',
 		port: 3000,
 	},
 	resolve: {

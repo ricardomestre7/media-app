@@ -1,0 +1,36 @@
+mutation CreateUser @auth(level: USER) {
+  user_insert(data: {
+    email: "test@example.com",
+    username: "testuser"
+  })
+}
+
+query GetAudioClips @auth(level: PUBLIC) {
+  audioClips {
+    id
+    title
+    description
+    audioFileUrl
+    durationSeconds
+    createdAt
+    user {
+      id
+      username
+    }
+  }
+}
+
+mutation AddComment($audioClipId: UUID!, $text: String!) @auth(level: USER) {
+  comment_insert(data: {
+    audioClipId: $audioClipId,
+    userId_expr: "auth.uid",
+    text: $text
+  })
+}
+
+mutation LikeAudioClip($audioClipId: UUID!) @auth(level: USER) {
+  like_insert(data: {
+    audioClipId: $audioClipId,
+    userId_expr: "auth.uid"
+  })
+}

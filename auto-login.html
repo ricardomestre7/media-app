@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Login - MediaHub</title>
+</head>
+<body>
+    <h1>Fazendo login automático...</h1>
+    <p>Redirecionando para o dashboard...</p>
+    
+    <script>
+        // Simular login automático
+        const userData = {
+            id: '1',
+            email: 'admin@mediahub.com',
+            name: 'Admin',
+            avatar: 'https://i.pravatar.cc/150?u=admin@mediahub.com',
+            createdAt: new Date().toISOString()
+        };
+        
+        const token = 'simulated_token_' + Date.now();
+        
+        // Salvar no localStorage
+        localStorage.setItem('authToken', token);
+        localStorage.setItem('userData', JSON.stringify(userData));
+        
+        console.log('Login automático realizado:', userData);
+        
+        // Redirecionar para o dashboard
+        setTimeout(() => {
+            window.location.href = 'http://localhost:3000/';
+        }, 1000);
+    </script>
+</body>
+</html>

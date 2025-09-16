@@ -1,0 +1,77 @@
+mutation SeedDatabase @auth(level: NO_ACCESS) {
+  user_upsertMany(data: [
+    {
+      id: "550e8400-e29b-41d4-a716-446655440000",
+      bio: "Software Engineer",
+      createdAt: "2024-01-01T00:00:00Z",
+      displayName: "John Doe",
+      email: "john.doe@example.com",
+      profilePictureUrl: "https://example.com/john.jpg",
+      username: "johndoe"
+    },
+    {
+      id: "661f9511-f3ac-52e5-b827-557766551111",
+      bio: "Data Scientist",
+      createdAt: "2024-01-02T00:00:00Z",
+      displayName: "Jane Smith",
+      email: "jane.smith@example.com",
+      profilePictureUrl: "https://example.com/jane.jpg",
+      username: "janesmith"
+    }
+  ])
+  audioClip_upsertMany(data: [
+    {
+      id: "772a0622-04bb-63f6-c938-668877662222",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      audioFileUrl: "https://example.com/audio1.mp3",
+      createdAt: "2024-01-03T00:00:00Z",
+      description: "Sample audio clip 1",
+      durationSeconds: 60,
+      title: "Audio Clip 1"
+    },
+    {
+      id: "883b1733-15cc-7407-da49-779988773333",
+      userId: "661f9511-f3ac-52e5-b827-557766551111",
+      audioFileUrl: "https://example.com/audio2.mp3",
+      createdAt: "2024-01-04T00:00:00Z",
+      description: "Sample audio clip 2",
+      durationSeconds: 120,
+      title: "Audio Clip 2"
+    }
+  ])
+  comment_upsertMany(data: [
+    {
+      id: "994c2844-26dd-8518-eb5a-880099884444",
+      audioClipId: "772a0622-04bb-63f6-c938-668877662222",
+      userId: "661f9511-f3ac-52e5-b827-557766551111",
+      createdAt: "2024-01-05T00:00:00Z",
+      text: "Great audio clip!"
+    },
+    {
+      id: "aa5d3955-37ee-9629-fc6b-9911aa995555",
+      audioClipId: "883b1733-15cc-7407-da49-779988773333",
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      createdAt: "2024-01-06T00:00:00Z",
+      text: "Interesting content."
+    }
+  ])
+  like_upsertMany(data: [
+    {
+      userId: "550e8400-e29b-41d4-a716-446655440000",
+      audioClipId: "772a0622-04bb-63f6-c938-668877662222",
+      createdAt: "2024-01-07T00:00:00Z"
+    },
+    {
+      userId: "661f9511-f3ac-52e5-b827-557766551111",
+      audioClipId: "883b1733-15cc-7407-da49-779988773333",
+      createdAt: "2024-01-08T00:00:00Z"
+    }
+  ])
+  follow_upsertMany(data: [
+    {
+      followerId: "550e8400-e29b-41d4-a716-446655440000",
+      followedId: "661f9511-f3ac-52e5-b827-557766551111",
+      createdAt: "2024-01-09T00:00:00Z"
+    }
+  ])
+}

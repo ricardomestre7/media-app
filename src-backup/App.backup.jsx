@@ -1,8 +1,7 @@
 import React, { Suspense, lazy, useEffect } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
-import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import ProtectedRoute from '@/components/ProtectedRoute';
+import { AuthProvider, ProtectedRoute, useAuthStatus } from '@/contexts/AuthContext';
 import { Toaster } from '@/components/ui/toaster';
 import ErrorBoundary from '@/components/ErrorBoundary';
 
@@ -49,122 +48,155 @@ const PageLoader = ({ message = "Carregando..." }) => (
 );
 
 // Componente para erro de autenticação
-const AuthError = ({ message }) => (
-  <div className="min-h-screen bg-gradient-to-br from-red-900 to-red-700 flex items-center justify-center">
-    <div className="text-white text-center max-w-md mx-auto p-8">
-      <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-        <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
+const AuthError = () => (
+  <div className="min-h-screen bg-gradient-to-br from-red-900 to-red-700 flex items-center justify-center p-4">
+    <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 text-white text-center max-w-md">
+      <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span className="text-2xl">⚠️</span>
       </div>
-      <h2 className="text-xl font-semibold mb-2">Erro de Autenticação</h2>
-      <p className="text-red-200 mb-6">{message}</p>
-      <button 
-        onClick={() => window.location.reload()} 
-        className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg transition-colors"
+      <h1 className="text-2xl font-bold mb-4">Erro de Autenticação</h1>
+      <p className="text-red-200 mb-6">
+        Houve um problema com sua sessão. Tente fazer login novamente.
+      </p>
+      <button
+        onClick={() => window.location.href = '/login'}
+        className="bg-white text-red-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
       >
-        Tentar Novamente
+        Ir para Login
       </button>
     </div>
   </div>
 );
 
-// Componente de rota protegida customizada
+// Componente de rota protegida especializado
 const AppProtectedRoute = ({ children, requireAuth = true }) => {
-  const { isAuthenticated, loading } = useAuth();
-  
-  if (loading) {
+  const { isAuthenticated, isLoading, error } = useAuthStatus();
+
+  if (isLoading) {
     return <PageLoader message="Verificando autenticação..." />;
   }
-  
+
+  if (error && requireAuth) {
+    return <AuthError />;
+  }
+
   if (requireAuth && !isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  
+
   if (!requireAuth && isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/" replace />;
   }
-  
+
   return children;
 };
 
-// Componente de rotas
+// Componente principal das rotas
 const AppRoutes = () => (
   <Routes>
-    {/* Rota pública - Login */}
+    {/* Rota de login - não autenticada */}
     <Route 
       path="/login" 
       element={
         <AppProtectedRoute requireAuth={false}>
-          <Login />
+          <Suspense fallback={<PageLoader message="Carregando login..." />}>
+            <Login />
+          </Suspense>
         </AppProtectedRoute>
       } 
     />
     
-    {/* Rota raiz - redireciona baseado na autenticação */}
+    {/* Rota de compartilhamento - pública */}
+    <Route 
+      path="/share/:id" 
+      element={
+        <Suspense fallback={<PageLoader message="Carregando arquivo..." />}>
+          <SharePage />
+        </Suspense>
+      } 
+    />
+    
+    {/* Rotas autenticadas */}
     <Route 
       path="/" 
       element={
         <AppProtectedRoute>
-          <Dashboard />
+          <Suspense fallback={<PageLoader message="Carregando dashboard..." />}>
+            <Dashboard />
+          </Suspense>
         </AppProtectedRoute>
       } 
     />
     
-    {/* Dashboard principal */}
-    <Route 
-      path="/dashboard" 
-      element={
-        <AppProtectedRoute>
-          <Dashboard />
-        </AppProtectedRoute>
-      } 
-    />
-    
-    {/* Perfil do usuário */}
     <Route 
       path="/profile" 
       element={
         <AppProtectedRoute>
-          <Profile />
+          <Suspense fallback={<PageLoader message="Carregando perfil..." />}>
+            <Profile />
+          </Suspense>
         </AppProtectedRoute>
       } 
     />
     
-    {/* Página de compartilhamento público */}
+    {/* Rotas de categorias */}
     <Route 
-      path="/share/:id" 
-      element={<SharePage />} 
-    />
-    
-    {/* Categorias de mídia */}
-    <Route 
-      path="/category/:category" 
+      path="/videos" 
       element={
         <AppProtectedRoute>
-          <MediaCategoryPage />
+          <Suspense fallback={<PageLoader message="Carregando vídeos..." />}>
+            <MediaCategoryPage category="video" title="Vídeos" />
+          </Suspense>
         </AppProtectedRoute>
       } 
     />
     
-    {/* Rota de fallback */}
     <Route 
-      path="*" 
+      path="/images" 
       element={
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center">
-          <div className="text-white text-center">
-            <h1 className="text-4xl font-bold mb-4">404</h1>
-            <p className="text-gray-300 mb-6">Página não encontrada</p>
-            <button 
-              onClick={() => window.history.back()} 
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
-            >
-              Voltar
-            </button>
-          </div>
-        </div>
+        <AppProtectedRoute>
+          <Suspense fallback={<PageLoader message="Carregando imagens..." />}>
+            <MediaCategoryPage category="image" title="Imagens" />
+          </Suspense>
+        </AppProtectedRoute>
       } 
     />
+    
+    <Route 
+      path="/audios" 
+      element={
+        <AppProtectedRoute>
+          <Suspense fallback={<PageLoader message="Carregando áudios..." />}>
+            <MediaCategoryPage category="audio" title="Áudios" />
+          </Suspense>
+        </AppProtectedRoute>
+      } 
+    />
+    
+    <Route 
+      path="/gifs" 
+      element={
+        <AppProtectedRoute>
+          <Suspense fallback={<PageLoader message="Carregando GIFs..." />}>
+            <MediaCategoryPage category="gif" title="GIFs" />
+          </Suspense>
+        </AppProtectedRoute>
+      } 
+    />
+    
+    <Route 
+      path="/filter/:filterType" 
+      element={
+        <AppProtectedRoute>
+          <Suspense fallback={<PageLoader message="Aplicando filtro..." />}>
+            <Dashboard />
+          </Suspense>
+        </AppProtectedRoute>
+      } 
+    />
+    
+    {/* Fallback */}
+    <Route path="*" element={<Navigate to="/" replace />} />
   </Routes>
 );
 

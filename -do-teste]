@@ -1,0 +1,11 @@
+[33m68c9c0d[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m deploy: force ricardomestre7 deployment
+[33m82b15be[m trigger: force Vercel deployment
+[33mf577b6d[m fix: base path ajustado no vite.config.js
+[33mcaf866f[m fix: root directory resetado na Vercel
+[33mefd78aa[m trigger: force deployment with Vercel config
+[33m26cc0d4[m fix: remove Tailwind plugins conflicts - ready for Vercel
+[33m2f845d5[m trigger: force Vercel redeploy after dependency fix
+[33m5f69e4c[m feat: novo layout MediaHub com hero integrado e 5 cards por categoria
+[33m2784fbb[m Fix: Corrigir tela branca na Vercel - configurar outputDirectory e login simulado
+[33m145bc92[m Nova versão com ajuste visual
+[33ma6c7c58[m Update: Projeto Mídia Azul completo e funcional

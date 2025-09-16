@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste React</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: white;
+        }
+        #root {
+            min-height: 100vh;
+            background: white;
+        }
+        .test-content {
+            padding: 20px;
+            background: #f0f0f0;
+            border: 2px solid #333;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste React - Mídia App</h1>
+    <div class="test-content">
+        <p>Se você está vendo isso, o HTML está carregando.</p>
+        <p>Aguarde o React carregar...</p>
+    </div>
+    
+    <div id="root">
+        <div class="test-content">
+            <p style="color: red;">Se você ainda está vendo esta mensagem, o React não está carregando.</p>
+        </div>
+    </div>
+    
+    <script type="module">
+        console.log('Teste: Script carregado');
+        
+        // Teste básico do React
+        import React from '/node_modules/react/index.js';
+        import ReactDOM from '/node_modules/react-dom/client.js';
+        
+        console.log('Teste: React importado:', React);
+        console.log('Teste: ReactDOM importado:', ReactDOM);
+        
+        const TestComponent = () => {
+            return React.createElement('div', {
+                style: { 
+                    padding: '20px', 
+                    background: 'lightgreen', 
+                    border: '2px solid green',
+                    margin: '20px 0'
+                }
+            }, 
+                React.createElement('h2', null, 'React está funcionando!'),
+                React.createElement('p', null, 'Este componente foi renderizado pelo React.'),
+                React.createElement('p', null, 'Timestamp: ' + new Date().toLocaleString())
+            );
+        };
+        
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        console.log('Teste: Root criado:', root);
+        
+        root.render(React.createElement(TestComponent));
+        console.log('Teste: Componente renderizado');
+    </script>
+</body>
+</html>
