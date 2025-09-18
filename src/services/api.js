@@ -1,5 +1,5 @@
 // Configuração da API para conectar com o VPS
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://91.99.110.87:3000';
 
 class ApiService {
   constructor() {
@@ -169,3 +169,24 @@ class ApiService {
 export const apiService = new ApiService();
 export default apiService;
 
+// Funções simples para VPS
+export const fetchCategoriesFromVPS = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/`);
+    const data = await response.json();
+    return data.categories || [];
+  } catch (error) {
+    console.error('Erro ao buscar categorias:', error);
+    return [];
+  }
+};
+
+export const fetchFilesByCategory = async (category) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/media/${category}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Erro ao buscar arquivos:', error);
+    return [];
+  }
+};
